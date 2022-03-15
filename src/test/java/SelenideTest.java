@@ -15,20 +15,22 @@ import static java.util.stream.LongStream.range;
 
 
 public class SelenideTest {
-    public LocalDate date = LocalDate.now();
-    public String dateFormat = date.plusDays(5).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-
+    String generateDate(int days) {
+        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    }
+    String planningDate = generateDate(4);
     @Test
     void shouldSubmitRequest() {
         open("http://localhost:9999");
         $("[data-test-id=city] input").setValue("Санкт-Петербург");
-        {$("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE);}
-        $("[data-test-id=date] input").setValue(String.valueOf(dateFormat));
+        {$("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иванов Иван");
         $("[data-test-id=phone] input").setValue("+79533556677");
         $("[data-test-id=agreement]").click();
         $(withText("Забронировать")).click();
         $(withText("Успешно!")).shouldBe(Condition.visible, Duration.ofSeconds(14));
-        $("[data-test-id=notification]").shouldHave(Condition.text("Встреча успешно забронирована на " + dateFormat));
+        $("[data-test-id=notification]").shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate));
     }
+}
 }
